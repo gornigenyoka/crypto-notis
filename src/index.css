@@ -1,0 +1,661 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 16 185 129;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 210 40% 20%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 16 185 129;
+    --radius: 0.75rem;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 16 185 129;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 16 185 129;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-black text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background: linear-gradient(135deg, #000000 0%, #0f0f0f 30%, #1a1a1a 60%, #0f0f0f 100%);
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #06b6d4 0%, #10b981 100%);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #0891b2 0%, #059669 100%);
+  }
+}
+
+@layer utilities {
+  /* Enhanced Glassmorphism for crypto theme */
+  .glass {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+  }
+
+  .glass-card {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-strong {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Crypto-themed gradients */
+  .crypto-gradient {
+    background: linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #6366f1 100%);
+  }
+
+  .crypto-gradient-transparent {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.4) 0%, rgba(16, 185, 129, 0.5) 50%, rgba(99, 102, 241, 0.3) 100%);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+  }
+
+  .crypto-gradient-subtle {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(16, 185, 129, 0.2) 50%, rgba(99, 102, 241, 0.15) 100%);
+  }
+
+  /* Crypto neon outline for category buttons */
+  .crypto-neon-outline {
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4), inset 0 0 10px rgba(6, 182, 212, 0.2);
+  }
+
+  .crypto-neon-outline:hover {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 30px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(16, 185, 129, 0.3);
+  }
+
+  /* Crypto gradient text */
+  .crypto-gradient-text {
+    background: linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Button gradients - RESTORED original blue-green theme */
+  .reward-gradient {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(16, 185, 129, 0.12) 100%);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+  }
+
+  .reward-banner {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.06) 0%, rgba(16, 185, 129, 0.08) 100%);
+    backdrop-filter: blur(8px);
+  }
+
+  /* Visit button gradient - proper blue-green with transparency */
+  .visit-gradient {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(16, 185, 129, 0.35) 50%, rgba(99, 102, 241, 0.2) 100%);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    backdrop-filter: blur(12px);
+  }
+
+  .visit-gradient:hover {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.45) 0%, rgba(16, 185, 129, 0.5) 50%, rgba(99, 102, 241, 0.35) 100%);
+    border: 1px solid rgba(6, 182, 212, 0.6);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.6), 0 0 35px rgba(16, 185, 129, 0.4);
+  }
+
+  .visit-gradient:active {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.6) 0%, rgba(16, 185, 129, 0.65) 50%, rgba(99, 102, 241, 0.45) 100%);
+    border: 1px solid rgba(6, 182, 212, 0.8);
+  }
+
+  /* Enhanced hover effects with proper blue-green glow */
+  .hover-neon-glow:hover {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.6), 0 0 35px rgba(16, 185, 129, 0.4), 0 0 50px rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px) scale(1.02);
+    transition: transform 0.3s ease;
+  }
+
+  /* Glassmorphism hover with blue-green aura */
+  .hover-glass:hover {
+    background: rgba(0, 0, 0, 0.45);
+    border-color: rgba(6, 182, 212, 0.4);
+    box-shadow: 0 8px 32px rgba(6, 182, 212, 0.2), 0 0 20px rgba(16, 185, 129, 0.15);
+    transition: all 0.3s ease;
+  }
+
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+
+  /* Sidebar toggle button styling - darker */
+  .sidebar-toggle {
+    background: rgba(5, 10, 20, 0.8);
+    border: 1px solid rgba(30, 40, 60, 0.6);
+  }
+
+  .sidebar-toggle:hover {
+    background: rgba(30, 40, 60, 0.9);
+    border-color: rgba(6, 182, 212, 0.5);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+  }
+
+  /* New geometric shapes */
+  .hexagon {
+    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+  }
+
+  .triangle {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+
+  .diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+
+  .grid-pattern {
+    background-image: 
+      linear-gradient(rgba(16, 185, 129, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(16, 185, 129, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Button styling with proper blue-green gradients */
+  .btn-primary, button[type="submit"], button.primary {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(16, 185, 129, 0.35) 50%, rgba(99, 102, 241, 0.2) 100%) !important;
+    border: 1px solid rgba(6, 182, 212, 0.4) !important;
+    color: white !important;
+    backdrop-filter: blur(12px) !important;
+  }
+
+  .btn-primary:hover, button[type="submit"]:hover, button.primary:hover {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.45) 0%, rgba(16, 185, 129, 0.5) 50%, rgba(99, 102, 241, 0.35) 100%) !important;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.6), 0 0 35px rgba(16, 185, 129, 0.4) !important;
+    border-color: rgba(6, 182, 212, 0.6) !important;
+  }
+}
+
+/* Enhanced animations for crypto theme */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 0.4;
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translateY(15px) rotate(-90deg);
+    opacity: 0.3;
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.8), 0 0 35px rgba(16, 185, 129, 0.6);
+  }
+}
+
+@keyframes float-neon {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-15px) translateX(8px);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-25px) translateX(-8px);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-15px) translateX(12px);
+    opacity: 0.6;
+  }
+}
+
+@keyframes pulse-neon {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.9), 0 0 35px rgba(16, 185, 129, 0.6);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 20s infinite ease-in-out;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 25s infinite ease-in-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s infinite ease-in-out;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 30s infinite linear;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+.animate-float-neon {
+  animation: float-neon 30s infinite linear;
+}
+
+.animate-pulse-neon {
+  animation: pulse-neon 5s infinite ease-in-out;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-3000 {
+  animation-delay: 3s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.animation-delay-5000 {
+  animation-delay: 5s;
+}
+
+.animation-delay-6000 {
+  animation-delay: 6s;
+}
+
+/* New crypto-themed animations */
+@keyframes crypto-enhanced {
+  0% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.1;
+  }
+  25% {
+    transform: translateY(-40px) translateX(20px) rotate(90deg) scale(1.1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-60px) translateX(-15px) rotate(180deg) scale(1.05);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translateY(-40px) translateX(25px) rotate(270deg) scale(1.08);
+    opacity: 0.25;
+  }
+  100% {
+    transform: translateY(0px) translateX(0px) rotate(360deg) scale(1);
+    opacity: 0.1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1) rotate(0deg);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2) rotate(5deg);
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.7), 0 0 40px rgba(16, 185, 129, 0.5);
+  }
+}
+
+@keyframes pulse-neon {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+    filter: brightness(1.3);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.animate-crypto-enhanced {
+  animation: crypto-enhanced infinite ease-in-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow infinite ease-in-out;
+}
+
+.animate-pulse-neon {
+  animation: pulse-neon infinite ease-in-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow infinite ease-in-out;
+}
+
+@keyframes crypto-float {
+  0% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  25% {
+    transform: translateY(-30px) rotate(90deg) scale(1.05);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(0px) rotate(180deg) scale(1);
+    opacity: 0.25;
+  }
+  75% {
+    transform: translateY(30px) rotate(270deg) scale(0.95);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(0px) rotate(360deg) scale(1);
+    opacity: 0;
+  }
+}
+
+.animate-crypto-float {
+  animation: crypto-float infinite ease-in-out;
+}
+
+@keyframes float-crypto {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+    opacity: 0.4;
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-35px) translateX(-10px) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-20px) translateX(15px) rotate(270deg);
+    opacity: 0.6;
+  }
+}
+
+.animate-float-crypto {
+  animation: float-crypto 25s infinite linear;
+}
+
+/* New shooting star animation */
+@keyframes shooting-star {
+  0% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-120vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+.animate-shooting-star {
+  animation: shooting-star infinite linear;
+}
+
+/* New natural shooting star animation with varied vectors */
+@keyframes shooting-star-natural {
+  0% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 0.6;
+    transform: translateY(-25vh) translateX(5px) rotate(45deg);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-60vh) translateX(-10px) rotate(90deg);
+  }
+  90% {
+    opacity: 0.4;
+    transform: translateY(-100vh) translateX(15px) rotate(135deg);
+  }
+  100% {
+    transform: translateY(-130vh) translateX(20px) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+.animate-shooting-star-natural {
+  animation: shooting-star-natural infinite linear;
+}
+
+/* New arched shooting star animation with natural curved path */
+@keyframes shooting-star-arched {
+  0% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 0.6;
+    transform: translateY(-30vh) translateX(15px);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-70vh) translateX(-25px);
+  }
+  90% {
+    opacity: 0.4;
+    transform: translateY(-110vh) translateX(35px);
+  }
+  100% {
+    transform: translateY(-140vh) translateX(-10px);
+    opacity: 0;
+  }
+}
+
+.animate-shooting-star-arched {
+  animation: shooting-star-arched infinite linear;
+}
+
+/* New arched curved shooting star animation */
+@keyframes crypto-arched-shooting-star {
+  0% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0;
+  }
+  7% {
+    opacity: 0.22;
+  }
+  13% {
+    opacity: 0.55;
+  }
+  25% {
+    opacity: 0.8;
+    /* begin arched veer, go left or right (dynamic) */
+    transform: translateY(-20vh) translateX(var(--arch-curve, 22px));
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-55vh) translateX(calc(var(--arch-curve, 22px) * 1.1));
+  }
+  70% {
+    opacity: 0.9;
+    transform: translateY(-90vh) translateX(calc(var(--arch-curve, 22px) * 1.2));
+  }
+  80% {
+    opacity: 0.72;
+  }
+  96% {
+    opacity: 0.26;
+  }
+  100% {
+    transform: translateY(-132vh) translateX(calc(var(--arch-curve, 22px) * 1.28));
+    opacity: 0;
+  }
+}
+
+.shooting-star {
+  will-change: transform, opacity;
+}
+
+/* Shooting star animation with gentle arcs */
+@keyframes shootingStar {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.3;
+  }
+  15% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-60vh) translateX(calc(var(--arc-direction, 1) * var(--arc-strength, 10vw) * 0.5));
+  }
+  85% {
+    opacity: 0.8;
+  }
+  95% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-140vh) translateX(calc(var(--arc-direction, 1) * var(--arc-strength, 10vw)));
+    opacity: 0;
+  }
+}
+
+.shooting-star-container {
+  will-change: transform, opacity;
+}
+
+.trail {
+  animation: trailFade 0.8s ease-out infinite;
+}
+
+@keyframes trailFade {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
