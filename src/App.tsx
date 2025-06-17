@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +7,8 @@ import Index from "./pages/Index";
 import PlatformDetail from "./pages/PlatformDetail";
 import MoonmapGrid from "./pages/MoonmapGrid";
 import NotFound from "./pages/NotFound";
+import Analytics from "./pages/Analytics";
+import ChartPage from "./pages/ChartPage";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/platform/:id" element={<PlatformDetail />} />
           <Route path="/moonmap" element={<MoonmapGrid />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/analytics/chart/:id" element={<ChartPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,4 +1,3 @@
-
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
@@ -32,7 +31,12 @@ const AppHeader = () => {
             >
               MoonMap
             </Link>
-            <a href="#" className="text-slate-300 hover:text-white transition-colors">Analytics</a>
+            <Link 
+              to="/analytics" 
+              className={`transition-colors ${location.pathname === '/analytics' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'}`}
+            >
+              Analytics
+            </Link>
             <a href="#" className="text-slate-300 hover:text-white transition-colors">Education</a>
             <Button variant="outline" className="glass border-slate-400/30 text-white hover:bg-slate-500/20 hover-neon-glow">
               Connect Wallet
