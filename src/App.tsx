@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import PlatformDetail from "./pages/PlatformDetail";
-import MoonmapGrid from "./pages/MoonmapGrid";
 import NotFound from "./pages/NotFound";
 import Analytics from "./pages/Analytics";
 import ChartPage from "./pages/ChartPage";
@@ -21,7 +20,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/platform/:id" element={<PlatformDetail />} />
-          <Route path="/moonmap" element={<MoonmapGrid />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/analytics/chart/:id" element={<ChartPage />} />
           <Route path="*" element={<NotFound />} />

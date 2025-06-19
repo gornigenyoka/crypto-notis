@@ -26,12 +26,6 @@ const AppHeader = () => {
             </Link>
             <a href="#" className="text-slate-300 hover:text-white transition-colors">Notifications</a>
             <Link 
-              to="/moonmap" 
-              className={`transition-colors ${location.pathname === '/moonmap' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'}`}
-            >
-              MoonMap
-            </Link>
-            <Link 
               to="/analytics" 
               className={`transition-colors ${location.pathname === '/analytics' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'}`}
             >
