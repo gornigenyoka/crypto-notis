@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import webbrowser
 import requests
+import warnings
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox, QFileDialog, QInputDialog, QLineEdit, QTextEdit, QComboBox
 )
@@ -13,6 +14,21 @@ import io
 import openai
 import shutil
 import re
+
+# Try to import BeautifulSoup for favicon parsing
+try:
+    from bs4 import BeautifulSoup
+    BEAUTIFULSOUP_AVAILABLE = True
+except ImportError:
+    BEAUTIFULSOUP_AVAILABLE = False
+    print("BeautifulSoup not installed. Favicon parsing from HTML will be limited.")
+
+# Suppress warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+# Suppress libpng warnings
+os.environ['QT_LOGGING_RULES'] = '*.debug=false;qt.qpa.*=false'
 
 WORKSPACE_DIR = r"C:\Users\alexa\Downloads\crypto-glass-beacon-66-main"
 CSV_FILE = os.path.join(WORKSPACE_DIR, "public", "ref_links.csv")
@@ -29,7 +45,18 @@ class RefLinksApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Ref Links Validator")
-        self.resize(1000, 650)
+        
+        # Get screen size and set window size appropriately
+        screen = QGuiApplication.primaryScreen().geometry()
+        window_width = min(1000, screen.width() - 100)
+        window_height = min(650, screen.height() - 100)
+        self.resize(window_width, window_height)
+        
+        # Center the window
+        x = (screen.width() - window_width) // 2
+        y = (screen.height() - window_height) // 2
+        self.move(x, y)
+        
         try:
             self.df = pd.read_csv(CSV_FILE)
             # Ensure favicon column exists and is string type
@@ -414,11 +441,36 @@ class RefLinksApp(QWidget):
             platform_name = row.get('Platform Name', '')
             website = self.website_edit.text().strip()
             referral = self.referral_edit.text().strip()
-            match = (df_full['Platform Name'] == platform_name) & (df_full['Official Website'] == row.get('Official Website', ''))
+            
+            # Try multiple matching strategies
+            # First try: match by platform name only (most reliable)
+            match = df_full['Platform Name'] == platform_name
             idxs = df_full.index[match].tolist()
+            
+            # If multiple matches, try to narrow down by original website
+            if len(idxs) > 1:
+                original_website = row.get('Official Website', '')
+                # Handle empty website fields properly
+                if original_website and not pd.isna(original_website) and original_website.strip():
+                    match = (df_full['Platform Name'] == platform_name) & (df_full['Official Website'] == original_website)
+                else:
+                    # If original website is empty, use the first match by platform name
+                    match = df_full['Platform Name'] == platform_name
+                idxs = df_full.index[match].tolist()
+            
+            # If still no match, try by index position (fallback)
+            if not idxs and self.current_index < len(df_full):
+                idxs = [self.current_index]
+            
             if not idxs:
-                raise Exception('Could not find matching row in CSV for save!')
+                # Last resort: find by platform name and use first match
+                match = df_full['Platform Name'] == platform_name
+                idxs = df_full.index[match].tolist()
+                if not idxs:
+                    raise Exception(f'Could not find matching row for platform: {platform_name}')
+            
             idx = idxs[0]
+            
             # Clean up fields
             def clean(val):
                 if pd.isna(val) or val == 'nan' or val == '""':
@@ -426,19 +478,23 @@ class RefLinksApp(QWidget):
                 if isinstance(val, str) and val.startswith('"') and val.endswith('"'):
                     return val[1:-1]
                 return val
+            
             df_full.at[idx, 'Official Website'] = clean(website)
             df_full.at[idx, 'Referral Link'] = clean(referral)
             df_full.at[idx, 'Description'] = clean(self.desc_edit.toPlainText())
+            
             # Properly clean features/capsules: split on commas, preserve all spaces inside tags
             def clean_commas(val):
                 if not isinstance(val, str):
                     return ''
                 tags = [t.strip().replace('"', '').replace("'", '') for t in re.split(r',', val) if t.strip()]
                 return ','.join(tags)
+            
             features = clean_commas(self.features_edit.text())
             capsules = clean_commas(self.capsules_edit.text())
             df_full.at[idx, 'Features'] = features
             df_full.at[idx, 'capsules'] = capsules
+            
             # Handle logo: if no new logo, use existing CSV value
             logo_path = self.logo_paths[self.current_index]
             if logo_path:
@@ -446,10 +502,13 @@ class RefLinksApp(QWidget):
             else:
                 logo_filename = str(row.get('Logo', '')).strip()
             df_full.at[idx, 'Logo'] = clean(logo_filename)
+            
             df_full.to_csv(CSV_FILE, index=False)
             self.logo_status.setText("Saved to CSV!")
+            
         except Exception as e:
             self.logo_status.setText(f"Failed to save: {str(e)}")
+            print(f"Debug - Platform: {platform_name}, Index: {self.current_index}, Error: {e}")
 
     def prev_entry(self):
         if self.current_index > 0:
@@ -493,26 +552,29 @@ class RefLinksApp(QWidget):
             else:
                 # Try to parse <link rel="icon"> from HTML
                 r_html = requests.get(url, timeout=6)
-                from bs4 import BeautifulSoup
-                soup = BeautifulSoup(r_html.text, 'html.parser')
-                icon_link = soup.find('link', rel=lambda x: x and 'icon' in x.lower())
-                if icon_link and icon_link.get('href'):
-                    icon_href = icon_link['href']
-                    if icon_href.startswith('//'):
-                        icon_url = 'https:' + icon_href
-                    elif icon_href.startswith('http'):
-                        icon_url = icon_href
+                if BEAUTIFULSOUP_AVAILABLE:
+                    soup = BeautifulSoup(r_html.text, 'html.parser')
+                    icon_link = soup.find('link', rel=lambda x: x and 'icon' in x.lower())
+                    if icon_link and icon_link.get('href'):
+                        icon_href = icon_link['href']
+                        if icon_href.startswith('//'):
+                            icon_url = 'https:' + icon_href
+                        elif icon_href.startswith('http'):
+                            icon_url = icon_href
+                        else:
+                            icon_url = f"https://{base_url}/{icon_href.lstrip('/')}"
+                        r_icon = requests.get(icon_url, timeout=6)
+                        icon_content_type = r_icon.headers.get('content-type', '')
+                        if r_icon.status_code == 200 and r_icon.content and 'image' in icon_content_type:
+                            favicon_data = r_icon.content
+                        else:
+                            self.logo_status.setText("Favicon not found or not an image.")
+                            return
                     else:
-                        icon_url = f"https://{base_url}/{icon_href.lstrip('/')}"
-                    r_icon = requests.get(icon_url, timeout=6)
-                    icon_content_type = r_icon.headers.get('content-type', '')
-                    if r_icon.status_code == 200 and r_icon.content and 'image' in icon_content_type:
-                        favicon_data = r_icon.content
-                    else:
-                        self.logo_status.setText("Favicon not found or not an image.")
+                        self.logo_status.setText("Favicon not found.")
                         return
                 else:
-                    self.logo_status.setText("Favicon not found.")
+                    self.logo_status.setText("BeautifulSoup not installed. Favicon parsing from HTML will be limited.")
                     return
             # Always save as PNG
             try:
@@ -570,14 +632,34 @@ class RefLinksApp(QWidget):
             df_full['favicon'] = ''
         else:
             df_full['favicon'] = df_full['favicon'].astype(str)
-        match = (df_full['Platform Name'] == row.get('Platform Name', '')) & (df_full['Official Website'] == row.get('Official Website', ''))
+        
+        # Use the same robust matching logic as save_to_csv
+        platform_name = row.get('Platform Name', '')
+        match = df_full['Platform Name'] == platform_name
         idxs = df_full.index[match].tolist()
+        
+        # If multiple matches, try to narrow down by original website
+        if len(idxs) > 1:
+            original_website = row.get('Official Website', '')
+            # Handle empty website fields properly
+            if original_website and not pd.isna(original_website) and original_website.strip():
+                match = (df_full['Platform Name'] == platform_name) & (df_full['Official Website'] == original_website)
+            else:
+                # If original website is empty, use the first match by platform name
+                match = df_full['Platform Name'] == platform_name
+            idxs = df_full.index[match].tolist()
+        
+        # If still no match, try by index position (fallback)
+        if not idxs and self.current_index < len(df_full):
+            idxs = [self.current_index]
+        
         if idxs:
             idx = idxs[0]
             df_full.at[idx, 'favicon'] = favicon_filename
             # Force favicon column to string before saving
             df_full['favicon'] = df_full['favicon'].astype(str)
             df_full.to_csv(CSV_FILE, index=False)
+        
         # Show favicon in UI
         pixmap = QPixmap()
         pixmap.load(favicon_path)

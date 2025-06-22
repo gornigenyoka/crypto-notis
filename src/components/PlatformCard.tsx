@@ -1,4 +1,4 @@
-import { Star, Users, Clock } from "lucide-react";
+import { Star, Users, Clock, Zap, Gift, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -15,11 +15,22 @@ interface PlatformCardProps {
     airdropPotential?: string;
     users: string;
     timeLeft?: string;
+    // Real-time data fields
+    lastUpdated?: string;
+    referralBonuses?: string;
+    signupOffers?: string;
+    currentDeals?: string;
+    platformStatus?: string;
   };
   className?: string;
 }
 
 const PlatformCard = ({ platform, className = "" }: PlatformCardProps) => {
+  // Check if we have real-time deals
+  const hasRealTimeDeals = platform.referralBonuses || platform.signupOffers || platform.currentDeals;
+  const isRecentlyUpdated = platform.lastUpdated && 
+    (new Date().getTime() - new Date(platform.lastUpdated).getTime()) < 24 * 60 * 60 * 1000; // 24 hours
+
   return (
     <Card className={`glass-card border-slate-400/20 transition-all duration-300 ${className}`}>
       <CardHeader className="pb-3">
@@ -41,6 +52,23 @@ const PlatformCard = ({ platform, className = "" }: PlatformCardProps) => {
               </Badge>
             </div>
           )}
+          {/* Real-time deals indicator */}
+          {hasRealTimeDeals && (
+            <div className="absolute bottom-3 left-3">
+              <Badge className="bg-orange-500/90 text-white shadow-lg flex items-center gap-1">
+                <Zap className="w-3 h-3" />
+                Live Deals
+              </Badge>
+            </div>
+          )}
+          {/* Recently updated indicator */}
+          {isRecentlyUpdated && (
+            <div className="absolute bottom-3 right-3">
+              <Badge className="bg-blue-500/90 text-white shadow-lg text-xs">
+                Updated
+              </Badge>
+            </div>
+          )}
         </div>
         
         <div className="flex items-start justify-between">
@@ -56,6 +84,35 @@ const PlatformCard = ({ platform, className = "" }: PlatformCardProps) => {
       
       <CardContent className="space-y-4">
         <p className="text-slate-300 text-sm leading-relaxed">{platform.description}</p>
+        
+        {/* Real-time deals section */}
+        {hasRealTimeDeals && (
+          <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="w-4 h-4 text-orange-400" />
+              <span className="text-orange-300 font-medium text-sm">Current Deals</span>
+            </div>
+            <div className="space-y-2">
+              {platform.referralBonuses && platform.referralBonuses !== '0' && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Gift className="w-3 h-3 text-green-400" />
+                  <span className="text-green-300">{platform.referralBonuses} referral bonuses</span>
+                </div>
+              )}
+              {platform.signupOffers && platform.signupOffers !== '0' && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Gift className="w-3 h-3 text-blue-400" />
+                  <span className="text-blue-300">{platform.signupOffers} signup offers</span>
+                </div>
+              )}
+              {platform.currentDeals && (
+                <div className="text-yellow-300 text-sm">
+                  {platform.currentDeals}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         <div className="flex flex-wrap gap-2">
           {platform.tags.slice(0, 3).map((tag) => (

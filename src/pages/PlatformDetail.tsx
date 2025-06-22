@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Star, ExternalLink, TrendingUp, Users, Book, Video, Check } from "lucide-react";
+import { Star, ExternalLink, TrendingUp, Users, Book, Video, Check, Zap, Gift, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import AppHeader from "@/components/AppHeader";
-import { loadPlatforms, Platform } from "@/data/platforms";
+import { loadPlatforms, Platform, getPlatformDeals } from "@/data/platforms";
 
 const PlatformDetail = () => {
   const { id } = useParams();
@@ -14,6 +14,7 @@ const PlatformDetail = () => {
   const [platform, setPlatform] = useState<Platform | null>(null);
   const [relatedPlatforms, setRelatedPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
+  const [realTimeDeals, setRealTimeDeals] = useState<any>(null);
 
   useEffect(() => {
     const fetchPlatform = async () => {
@@ -27,6 +28,12 @@ const PlatformDetail = () => {
         }
 
         setPlatform(currentPlatform);
+        
+        // Fetch real-time deals
+        if (currentPlatform['Platform Name']) {
+          const deals = await getPlatformDeals(currentPlatform['Platform Name']);
+          setRealTimeDeals(deals);
+        }
         
         // Get 3 from same category (excluding current)
         const sameCat = platforms.filter(p => p.category === currentPlatform.category && p.id !== currentPlatform.id);
@@ -54,6 +61,16 @@ const PlatformDetail = () => {
       if (fallback) fallback.style.display = 'flex';
     }
   };
+
+  // Check if we have real-time deals
+  const hasRealTimeDeals = realTimeDeals && (
+    realTimeDeals.referralBonuses || 
+    realTimeDeals.signupOffers || 
+    realTimeDeals.currentDeals ||
+    platform?.referralBonuses ||
+    platform?.signupOffers ||
+    platform?.currentDeals
+  );
 
   if (loading || !platform) {
     return (
@@ -128,6 +145,102 @@ const PlatformDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
+              {/* Real-time Deals Section */}
+              {hasRealTimeDeals && (
+                <Card className="glass-card border-orange-500/30 bg-gradient-to-r from-orange-500/5 to-red-500/5">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Zap className="w-5 h-5 mr-2 text-orange-400" />
+                      Current Deals & Offers
+                      {platform.lastUpdated && (
+                        <Badge className="ml-2 bg-blue-500/20 text-blue-300 text-xs">
+                          Updated {new Date(platform.lastUpdated).toLocaleDateString()}
+                        </Badge>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {/* Referral Bonuses */}
+                      {(realTimeDeals?.referralBonuses || platform.referralBonuses) && (
+                        <div className="flex items-center justify-between p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                          <div className="flex items-center">
+                            <Gift className="w-5 h-5 text-green-400 mr-3" />
+                            <div>
+                              <h4 className="text-green-300 font-medium">Referral Bonuses</h4>
+                              <p className="text-green-200 text-sm">
+                                {realTimeDeals?.referralBonuses || platform.referralBonuses} active referral programs
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className="bg-green-500/20 text-green-300">
+                            Active
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Signup Offers */}
+                      {(realTimeDeals?.signupOffers || platform.signupOffers) && (
+                        <div className="flex items-center justify-between p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                          <div className="flex items-center">
+                            <Gift className="w-5 h-5 text-blue-400 mr-3" />
+                            <div>
+                              <h4 className="text-blue-300 font-medium">Signup Offers</h4>
+                              <p className="text-blue-200 text-sm">
+                                {realTimeDeals?.signupOffers || platform.signupOffers} new user bonuses available
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className="bg-blue-500/20 text-blue-300">
+                            New Users
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Current Deals */}
+                      {(realTimeDeals?.currentDeals || platform.currentDeals) && (
+                        <div className="flex items-center justify-between p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                          <div className="flex items-center">
+                            <TrendingUp className="w-5 h-5 text-yellow-400 mr-3" />
+                            <div>
+                              <h4 className="text-yellow-300 font-medium">Current Promotions</h4>
+                              <p className="text-yellow-200 text-sm">
+                                {realTimeDeals?.currentDeals || platform.currentDeals}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className="bg-yellow-500/20 text-yellow-300">
+                            Limited Time
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Referral Link */}
+                      {platform['Referral Link'] && (
+                        <div className="flex items-center justify-between p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                          <div className="flex items-center">
+                            <ExternalLink className="w-5 h-5 text-purple-400 mr-3" />
+                            <div>
+                              <h4 className="text-purple-300 font-medium">Referral Link</h4>
+                              <p className="text-purple-200 text-sm">
+                                Use our referral link for exclusive bonuses
+                              </p>
+                            </div>
+                          </div>
+                          <Button 
+                            size="sm"
+                            className="bg-purple-500/20 text-purple-300 border-purple-500/30 hover:bg-purple-500/30"
+                            onClick={() => window.open(platform['Referral Link'], '_blank')}
+                          >
+                            Use Link
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Features */}
               <Card className="glass-card border-slate-400/20">
                 <CardHeader>
@@ -203,6 +316,25 @@ const PlatformDetail = () => {
                         {platform.airdropPotential}
                       </Badge>
                     </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-300">Status</span>
+                      <Badge className={`${
+                        platform.platformStatus === 'Active' 
+                          ? 'bg-green-500/20 text-green-300 border-green-500/30'
+                          : 'bg-red-500/20 text-red-300 border-red-500/30'
+                      }`}>
+                        {platform.platformStatus || 'Unknown'}
+                      </Badge>
+                    </div>
+                    {platform.lastUpdated && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-300">Last Updated</span>
+                        <div className="flex items-center text-slate-400 text-sm">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {new Date(platform.lastUpdated).toLocaleDateString()}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
