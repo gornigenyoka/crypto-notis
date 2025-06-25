@@ -20,7 +20,6 @@ interface PlatformCardProps {
     referralBonuses?: string;
     signupOffers?: string;
     currentDeals?: string;
-    platformStatus?: string;
   };
   className?: string;
 }

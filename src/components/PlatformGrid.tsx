@@ -1,9 +1,10 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Platform } from "@/data/platforms";
 import PlatformListCard from "./PlatformListCard";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface PlatformGridProps {
   platforms: Platform[];
@@ -21,6 +22,8 @@ const PlatformGrid = ({
   onSearchTermChange 
 }: PlatformGridProps) => {
   const [bookmarkedPlatforms, setBookmarkedPlatforms] = useState<number[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const platformsPerPage = 30;
   const categories = ["All", "CEX", "DEX", "DeFi", "Trading Bots", "Socials", "Gaming", "Casino", "Marketplace", "Tools"];
 
   const filteredPlatforms = platforms.filter(platform => {
@@ -33,6 +36,17 @@ const PlatformGrid = ({
     return matchesSearch && matchesCategory;
   });
 
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredPlatforms.length / platformsPerPage);
+  const startIndex = (currentPage - 1) * platformsPerPage;
+  const endIndex = startIndex + platformsPerPage;
+  const currentPlatforms = filteredPlatforms.slice(startIndex, endIndex);
+
   const toggleBookmark = (platformId: number, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -41,6 +55,18 @@ const PlatformGrid = ({
         ? prev.filter(id => id !== platformId)
         : [...prev, platformId]
     );
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const goToPreviousPage = () => {
+    goToPage(currentPage - 1);
+  };
+
+  const goToNextPage = () => {
+    goToPage(currentPage + 1);
   };
 
   // Bell lines (removed 'Referral bonuses for new users')
@@ -123,6 +149,10 @@ const PlatformGrid = ({
   const bellLineAssignments = getBellLineAssignments(platformCount);
   const featureTagsAssignments = getFeatureTagsForPlatforms(filteredPlatforms);
 
+  // Get bell lines and feature tags for current page only
+  const currentBellLines = bellLineAssignments.slice(startIndex, endIndex);
+  const currentFeatureTags = featureTagsAssignments.slice(startIndex, endIndex);
+
   return (
     <section className="relative z-10 py-4">
       <div className="container mx-auto px-6">
@@ -157,16 +187,42 @@ const PlatformGrid = ({
           </div>
         </div>
 
-        {/* Results count */}
-        <div className="text-center mb-4">
+        {/* Results count & Pagination */}
+        <div className="flex justify-between items-center mb-4">
           <p className="text-slate-400 text-sm">
-            Showing {filteredPlatforms.length} of {platforms.length} platforms
+            Showing <strong>{startIndex + 1}-{Math.min(endIndex, filteredPlatforms.length)}</strong> of <strong>{filteredPlatforms.length}</strong> platforms
           </p>
+          
+          {totalPages > 1 && (
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+                variant="ghost"
+                size="sm"
+                className="text-slate-400 hover:text-white disabled:opacity-30"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <span className="text-slate-400 text-sm font-mono w-16 text-center">
+                {currentPage} / {totalPages}
+              </span>
+              <Button
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages}
+                variant="ghost"
+                size="sm"
+                className="text-slate-400 hover:text-white disabled:opacity-30"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Platform List */}
         <div className="space-y-4">
-          {filteredPlatforms.map((platform, idx) => (
+          {currentPlatforms.map((platform, idx) => (
             <Link 
               key={platform.id} 
               to={`/platform/${platform.id}`}
@@ -176,8 +232,8 @@ const PlatformGrid = ({
                 platform={platform} 
                 isBookmarked={bookmarkedPlatforms.includes(platform.id)}
                 onBookmark={(e: React.MouseEvent) => toggleBookmark(platform.id, e)}
-                bellLine={bellLineAssignments[idx]}
-                featureTags={featureTagsAssignments[idx]}
+                bellLine={currentBellLines[idx]}
+                featureTags={currentFeatureTags[idx]}
               />
             </Link>
           ))}
@@ -189,6 +245,33 @@ const PlatformGrid = ({
               <p className="text-slate-400 text-lg mb-2">No platforms found</p>
               <p className="text-slate-500 text-sm">Try adjusting your search or category filter</p>
             </div>
+          </div>
+        )}
+
+        {/* Bottom Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6 flex justify-center items-center space-x-2">
+            <Button
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              variant="ghost"
+              size="sm"
+              className="text-slate-400 hover:text-white disabled:opacity-30"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+            <span className="text-slate-400 text-sm font-mono w-16 text-center">
+              {currentPage} / {totalPages}
+            </span>
+            <Button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              variant="ghost"
+              size="sm"
+              className="text-slate-400 hover:text-white disabled:opacity-30"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </Button>
           </div>
         )}
       </div>

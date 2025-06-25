@@ -11,14 +11,18 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPlatforms = async () => {
       try {
+        console.log('Starting to load platforms...');
         const data = await loadPlatforms();
+        console.log('Platforms loaded:', data.length, 'platforms');
         setPlatforms(data);
       } catch (error) {
         console.error('Error loading platforms:', error);
+        setError(error instanceof Error ? error.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
@@ -35,6 +39,26 @@ const Index = () => {
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <div className="glass-card rounded-xl p-8 text-center">
             <p className="text-slate-300 text-lg">Loading platforms...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen relative overflow-hidden">
+        <AnimatedBackground />
+        <AppHeader />
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+          <div className="glass-card rounded-xl p-8 text-center">
+            <p className="text-red-300 text-lg">Error loading platforms: {error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Reload Page
+            </button>
           </div>
         </div>
       </div>
