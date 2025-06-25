@@ -44,33 +44,36 @@ const AppHeader = () => {
             <Menu className="w-7 h-7 text-white" />
           </button>
         </div>
-        {/* Mobile Menu Dropdown */}
-        {mobileMenuOpen && (
-          <div className="md:hidden absolute left-0 right-0 mt-2 bg-[#10151f] border border-slate-500/20 rounded-lg shadow-lg z-50 animate-fade-in-down">
-            <nav className="flex flex-col items-start p-4 space-y-3">
-              <Link 
-                to="/" 
-                className={`w-full transition-colors ${location.pathname === '/' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'}`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Platforms
-              </Link>
-              <a href="#" className="w-full text-slate-300 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Notifications</a>
-              <Link 
-                to="/analytics" 
-                className={`w-full transition-colors ${location.pathname === '/analytics' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'}`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Analytics
-              </Link>
-              <a href="#" className="w-full text-slate-300 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Education</a>
-              <Button variant="outline" className="w-full glass border-slate-400/30 text-white hover:bg-slate-500/20 hover-neon-glow mt-2" onClick={() => setMobileMenuOpen(false)}>
-                Connect Wallet
-              </Button>
-            </nav>
-          </div>
-        )}
       </div>
+      {/* Mobile Menu Overlay and Dropdown */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+          {/* Menu */}
+          <div className="relative w-3/4 max-w-xs bg-[#10151f] border border-slate-500/20 rounded-r-lg shadow-lg p-6 flex flex-col space-y-4 animate-fade-in-left z-50">
+            <Link 
+              to="/" 
+              className={`w-full transition-colors ${location.pathname === '/' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'} text-lg font-medium`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Platforms
+            </Link>
+            <a href="#" className="w-full text-slate-300 hover:text-white transition-colors text-lg font-medium" onClick={() => setMobileMenuOpen(false)}>Notifications</a>
+            <Link 
+              to="/analytics" 
+              className={`w-full transition-colors ${location.pathname === '/analytics' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'} text-lg font-medium`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Analytics
+            </Link>
+            <a href="#" className="w-full text-slate-300 hover:text-white transition-colors text-lg font-medium" onClick={() => setMobileMenuOpen(false)}>Education</a>
+            <Button variant="outline" className="w-full glass border-slate-400/30 text-white hover:bg-slate-500/20 hover-neon-glow mt-2" onClick={() => setMobileMenuOpen(false)}>
+              Connect Wallet
+            </Button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
