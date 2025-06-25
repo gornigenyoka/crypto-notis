@@ -18,6 +18,8 @@ interface Platform {
   Logo?: string;
   Features?: string;
   features?: string[];
+  currentDeals?: string;
+  deals?: string;
 }
 
 interface PlatformListCardProps {
@@ -189,7 +191,7 @@ const PlatformListCard = ({ platform, isBookmarked, onBookmark, bellLine, featur
                 }}
               />
             </div>
-            <span className="text-slate-200 font-medium text-sm">{bellLine}</span>
+            <span className="text-slate-200 font-medium text-sm">{platform.currentDeals || platform.deals || bellLine}</span>
           </div>
           <TrendingUp className="w-4 h-4 text-green-300" />
         </div>

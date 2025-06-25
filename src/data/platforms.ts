@@ -34,10 +34,10 @@ export interface Platform {
   capsules: string;
   // New fields from automated updates
   lastUpdated?: string;
-  referralBonuses?: string;
-  signupOffers?: string;
   currentDeals?: string;
-  platformStatus?: string;
+  status?: string;
+  API?: string;
+  deals?: string;
 }
 
 // Default values for fields not in CSV
@@ -68,53 +68,35 @@ export const categories = [
   "Wallets"
 ];
 
-// Function to get real-time deals for a platform
-async function getRealTimeDeals(platformName: string): Promise<any> {
-  try {
-    // Try to fetch from our backend API first
-    const response = await fetch(`http://localhost:3001/api/platform/${encodeURIComponent(platformName)}`);
-    if (response.ok) {
-      const data = await response.json();
-      return data.data;
-    }
-  } catch (error) {
-    console.log(`No real-time data for ${platformName}, using CSV data`);
-  }
-  return null;
-}
-
 // Function to format deals for display
 function formatDeals(platform: any): string {
-  // Priority: real-time deals > CSV deals > default
-  if (platform.referralBonuses && platform.referralBonuses !== '0') {
-    return `🔥 ${platform.referralBonuses} referral bonus available`;
-  }
+  // Check if platform has a working API
+  const hasApi = platform.API === 'yes';
   
-  if (platform.signupOffers && platform.signupOffers !== '0') {
-    return `🎁 ${platform.signupOffers} signup offers`;
-  }
-  
-  if (platform.currentDeals) {
+  // Use the 'currentDeals' field directly from the CSV for platforms with APIs
+  if (hasApi && platform.currentDeals) {
     return platform.currentDeals;
   }
   
-  if (platform.referralLink) {
-    return "💰 Referral link available";
+  // For platforms without APIs, use the old logic with random descriptive text
+  if (platform['Referral Link'] && platform['Referral Link'].trim() !== '') {
+    return "Referral link available";
   }
   
-  return "Check platform for current offers";
+  // For platforms with no API and no referral link, return empty string
+  return "";
 }
 
 // Function to get platform status
 function getPlatformStatus(platform: any): string {
-  if (platform.platformStatus === 'Active') {
+  if (platform.status === 'Active') {
     return "🟢 Active";
   }
-  if (platform.platformStatus === 'Error') {
+  if (platform.status === 'Error') {
     return "🔴 Check Status";
   }
-  if (platform.Status) {
-    return platform.Status;
+  if (platform.Status) { // Fallback to original Status column if new one is empty
+    return `Status: ${platform.Status}`;
   }
   return "🟡 Unknown";
 }
@@ -122,68 +104,64 @@ function getPlatformStatus(platform: any): string {
 // Function to load and parse CSV data
 export async function loadPlatforms(): Promise<Platform[]> {
   try {
-    const response = await fetch('/ref_links.csv');
+    console.log('loadPlatforms: Starting to fetch CSV...');
+    // Add cache-busting query parameter to prevent loading old data
+    const response = await fetch(`/ref_links.csv?t=${new Date().getTime()}`);
+    console.log('loadPlatforms: CSV response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch CSV: ${response.status} ${response.statusText}`);
+    }
+    
     const csvText = await response.text();
+    console.log('loadPlatforms: CSV text length:', csvText.length);
     
     // Use PapaParse to parse CSV with headers
     const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+    console.log('loadPlatforms: Parsed CSV rows:', parsed.data.length);
     
-    const platforms = await Promise.all(parsed.data.map(async (row: any, index: number) => {
-      // Try to get real-time data
-      const realTimeData = await getRealTimeDeals(row['Platform Name']);
-      
+    const platforms = parsed.data.map((row: any, index: number) => {
+      const platformData = row as Platform;
+
       const platform: Platform = {
         id: index + 1,
-        name: row['Platform Name'] || '',
-        category: (row['Category'] || '').replace('s', ''),
-        description: row['Description'] || row['Notes'] || `Discover ${row['Platform Name']}, a leading platform in the ${row['Category']} category.`,
+        name: platformData['Platform Name'] || '',
+        category: (platformData['Category'] || '').replace('s', ''),
+        description: platformData['Description'] || platformData['Notes'] || `Discover ${platformData['Platform Name']}`,
         rating: DEFAULT_VALUES.rating,
-        bonus: formatDeals({ ...row, ...realTimeData }), // Use real-time deals
-        image: row['Logo'] ? `/logos/${row['Logo']}` : DEFAULT_VALUES.image,
-        tags: [row['Category'] || '', ...DEFAULT_VALUES.tags],
+        bonus: formatDeals(platformData),
+        image: platformData['Logo'] ? `/logos/${platformData['Logo']}` : DEFAULT_VALUES.image,
+        tags: [platformData['Category'] || '', ...DEFAULT_VALUES.tags],
         airdropPotential: DEFAULT_VALUES.airdropPotential,
         users: DEFAULT_VALUES.users,
-        referralLink: row['Referral Link'] || undefined,
-        officialWebsite: row['Official Website'] || undefined,
-        detailedDescription: row['Description'] || row['Notes'] || `Discover ${row['Platform Name']}, a leading platform in the ${row['Category']} category.`,
-        features: row['Features'] ? row['Features'].split(',').map((f: string) => f.trim()) : DEFAULT_VALUES.features,
-        Category: row['Category'] || '',
-        'Platform Name': row['Platform Name'] || '',
-        'Official Website': row['Official Website'] || '',
-        'Referral Link': row['Referral Link'] || '',
-        Notes: row['Notes'] || '',
-        Status: getPlatformStatus({ ...row, ...realTimeData }), // Use real-time status
-        Logo: row['Logo'] || '',
-        Description: row['Description'] || '',
-        Features: row['Features'] || '',
-        capsules: row['capsules'] || '',
-        // Real-time data fields
-        lastUpdated: realTimeData?.lastUpdated || row['lastUpdated'],
-        referralBonuses: realTimeData?.referralBonuses || row['referralBonuses'],
-        signupOffers: realTimeData?.signupOffers || row['signupOffers'],
-        currentDeals: realTimeData?.currentDeals || row['currentDeals'],
-        platformStatus: realTimeData?.status || row['status']
+        referralLink: platformData['Referral Link'] || undefined,
+        officialWebsite: platformData['Official Website'] || undefined,
+        detailedDescription: platformData['Description'] || platformData['Notes'] || `Discover ${platformData['Platform Name']}`,
+        features: platformData['Features'] ? platformData['Features'].split(',').map((f: string) => f.trim()) : DEFAULT_VALUES.features,
+        Category: platformData['Category'] || '',
+        'Platform Name': platformData['Platform Name'] || '',
+        'Official Website': platformData['Official Website'] || '',
+        'Referral Link': platformData['Referral Link'] || '',
+        Notes: platformData['Notes'] || '',
+        Status: getPlatformStatus(platformData),
+        Logo: platformData['Logo'] || '',
+        Description: platformData['Description'] || '',
+        Features: platformData['Features'] || '',
+        capsules: platformData['capsules'] || '',
+        lastUpdated: platformData.lastUpdated,
+        currentDeals: platformData.currentDeals,
+        status: platformData.status,
+        API: platformData.API || 'no',
+        deals: row['Deals'] || '',
       };
       return platform;
-    }));
+    });
     
-    return platforms;
+    const filteredPlatforms = platforms.filter(p => p.name); // Filter out any empty rows
+    console.log('loadPlatforms: Final platforms count:', filteredPlatforms.length);
+    return filteredPlatforms;
   } catch (error) {
     console.error('Error loading platforms:', error);
-    return [];
+    throw error; // Re-throw the error so the component can handle it
   }
-}
-
-// Function to get deals for a specific platform
-export async function getPlatformDeals(platformName: string): Promise<any> {
-  try {
-    const response = await fetch(`http://localhost:3001/api/platform/${encodeURIComponent(platformName)}`);
-    if (response.ok) {
-      const data = await response.json();
-      return data.data;
-    }
-  } catch (error) {
-    console.error('Error fetching platform deals:', error);
-  }
-  return null;
 }

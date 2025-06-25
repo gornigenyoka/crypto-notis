@@ -6,7 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import AppHeader from "@/components/AppHeader";
-import { loadPlatforms, Platform, getPlatformDeals } from "@/data/platforms";
+import { loadPlatforms, Platform } from "@/data/platforms";
+import { Link } from "react-router-dom";
+import { Separator } from "@/components/ui/separator";
 
 const PlatformDetail = () => {
   const { id } = useParams();
@@ -14,7 +16,6 @@ const PlatformDetail = () => {
   const [platform, setPlatform] = useState<Platform | null>(null);
   const [relatedPlatforms, setRelatedPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
-  const [realTimeDeals, setRealTimeDeals] = useState<any>(null);
 
   useEffect(() => {
     const fetchPlatform = async () => {
@@ -28,12 +29,6 @@ const PlatformDetail = () => {
         }
 
         setPlatform(currentPlatform);
-        
-        // Fetch real-time deals
-        if (currentPlatform['Platform Name']) {
-          const deals = await getPlatformDeals(currentPlatform['Platform Name']);
-          setRealTimeDeals(deals);
-        }
         
         // Get 3 from same category (excluding current)
         const sameCat = platforms.filter(p => p.category === currentPlatform.category && p.id !== currentPlatform.id);
@@ -62,15 +57,8 @@ const PlatformDetail = () => {
     }
   };
 
-  // Check if we have real-time deals
-  const hasRealTimeDeals = realTimeDeals && (
-    realTimeDeals.referralBonuses || 
-    realTimeDeals.signupOffers || 
-    realTimeDeals.currentDeals ||
-    platform?.referralBonuses ||
-    platform?.signupOffers ||
-    platform?.currentDeals
-  );
+  // Check if we have current deals
+  const hasCurrentDeals = !!(platform?.currentDeals || platform?.deals);
 
   if (loading || !platform) {
     return (
@@ -98,6 +86,8 @@ const PlatformDetail = () => {
           {/* Platform Header */}
           <div className="glass-card rounded-xl p-8 mb-8">
             <div className="space-y-6">
+              {/* Main platform header */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 justify-between">
               <div className="flex items-center gap-6">
                 {platform.Logo ? (
                   <div style={{ width: '6rem', height: '6rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#10151c', borderRadius: '1rem', border: '2px solid #10b98130' }}>
@@ -120,23 +110,44 @@ const PlatformDetail = () => {
                 </div>
               </div>
 
-              {/* Description at the top, yellow arrow location */}
+                <div className="w-full sm:w-auto flex-shrink-0">
+                  {visitUrl && (
+                    <Button 
+                      variant="ghost"
+                      className="visit-gradient w-full sm:w-auto justify-center hover:opacity-90 text-white font-medium transition-all duration-300 px-6 py-3 shadow-lg hover-neon-glow"
+                      onClick={() => window.open(visitUrl, '_blank')}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Visit Site
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Description */}
               {platform.Description && (
                 <div className="prose prose-invert max-w-none mb-4">
                   <p className="text-lg text-muted-foreground">{platform.Description}</p>
                 </div>
               )}
 
-              {visitUrl && (
-                <div className="mb-2">
-                  <Button 
-                    variant="ghost"
-                    className="visit-gradient hover:opacity-90 text-white font-medium transition-all duration-300 px-4 h-9 shadow-lg hover-neon-glow"
-                    onClick={() => window.open(visitUrl, '_blank')}
-                  >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Visit Site
-                  </Button>
+              {/* Current Deals - Integrated into header */}
+              {hasCurrentDeals && (
+                <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Gift className="w-5 h-5 text-orange-400 mr-3" />
+                      <div>
+                        <h4 className="text-orange-300 font-medium">Current Promotions</h4>
+                        <p className="text-orange-200 text-sm">
+                          {platform.currentDeals || platform.deals}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className="bg-orange-500/20 text-orange-300">
+                      Active
+                    </Badge>
+                  </div>
                 </div>
               )}
             </div>
@@ -145,102 +156,6 @@ const PlatformDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Real-time Deals Section */}
-              {hasRealTimeDeals && (
-                <Card className="glass-card border-orange-500/30 bg-gradient-to-r from-orange-500/5 to-red-500/5">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center">
-                      <Zap className="w-5 h-5 mr-2 text-orange-400" />
-                      Current Deals & Offers
-                      {platform.lastUpdated && (
-                        <Badge className="ml-2 bg-blue-500/20 text-blue-300 text-xs">
-                          Updated {new Date(platform.lastUpdated).toLocaleDateString()}
-                        </Badge>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Referral Bonuses */}
-                      {(realTimeDeals?.referralBonuses || platform.referralBonuses) && (
-                        <div className="flex items-center justify-between p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                          <div className="flex items-center">
-                            <Gift className="w-5 h-5 text-green-400 mr-3" />
-                            <div>
-                              <h4 className="text-green-300 font-medium">Referral Bonuses</h4>
-                              <p className="text-green-200 text-sm">
-                                {realTimeDeals?.referralBonuses || platform.referralBonuses} active referral programs
-                              </p>
-                            </div>
-                          </div>
-                          <Badge className="bg-green-500/20 text-green-300">
-                            Active
-                          </Badge>
-                        </div>
-                      )}
-
-                      {/* Signup Offers */}
-                      {(realTimeDeals?.signupOffers || platform.signupOffers) && (
-                        <div className="flex items-center justify-between p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                          <div className="flex items-center">
-                            <Gift className="w-5 h-5 text-blue-400 mr-3" />
-                            <div>
-                              <h4 className="text-blue-300 font-medium">Signup Offers</h4>
-                              <p className="text-blue-200 text-sm">
-                                {realTimeDeals?.signupOffers || platform.signupOffers} new user bonuses available
-                              </p>
-                            </div>
-                          </div>
-                          <Badge className="bg-blue-500/20 text-blue-300">
-                            New Users
-                          </Badge>
-                        </div>
-                      )}
-
-                      {/* Current Deals */}
-                      {(realTimeDeals?.currentDeals || platform.currentDeals) && (
-                        <div className="flex items-center justify-between p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                          <div className="flex items-center">
-                            <TrendingUp className="w-5 h-5 text-yellow-400 mr-3" />
-                            <div>
-                              <h4 className="text-yellow-300 font-medium">Current Promotions</h4>
-                              <p className="text-yellow-200 text-sm">
-                                {realTimeDeals?.currentDeals || platform.currentDeals}
-                              </p>
-                            </div>
-                          </div>
-                          <Badge className="bg-yellow-500/20 text-yellow-300">
-                            Limited Time
-                          </Badge>
-                        </div>
-                      )}
-
-                      {/* Referral Link */}
-                      {platform['Referral Link'] && (
-                        <div className="flex items-center justify-between p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                          <div className="flex items-center">
-                            <ExternalLink className="w-5 h-5 text-purple-400 mr-3" />
-                            <div>
-                              <h4 className="text-purple-300 font-medium">Referral Link</h4>
-                              <p className="text-purple-200 text-sm">
-                                Use our referral link for exclusive bonuses
-                              </p>
-                            </div>
-                          </div>
-                          <Button 
-                            size="sm"
-                            className="bg-purple-500/20 text-purple-300 border-purple-500/30 hover:bg-purple-500/30"
-                            onClick={() => window.open(platform['Referral Link'], '_blank')}
-                          >
-                            Use Link
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
               {/* Features */}
               <Card className="glass-card border-slate-400/20">
                 <CardHeader>
@@ -319,11 +234,11 @@ const PlatformDetail = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-slate-300">Status</span>
                       <Badge className={`${
-                        platform.platformStatus === 'Active' 
+                        platform.Status?.includes('Active') 
                           ? 'bg-green-500/20 text-green-300 border-green-500/30'
                           : 'bg-red-500/20 text-red-300 border-red-500/30'
                       }`}>
-                        {platform.platformStatus || 'Unknown'}
+                        {platform.Status || 'Unknown'}
                       </Badge>
                     </div>
                     {platform.lastUpdated && (
