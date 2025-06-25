@@ -1,9 +1,11 @@
-import { Bell } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 const AppHeader = () => {
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="relative z-10 glass border-b border-slate-500/20">
@@ -17,7 +19,8 @@ const AppHeader = () => {
               Crypto-Notis
             </Link>
           </div>
-          <nav className="flex items-center space-x-6">
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center space-x-6">
             <Link 
               to="/" 
               className={`transition-colors ${location.pathname === '/' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'}`}
@@ -36,7 +39,37 @@ const AppHeader = () => {
               Connect Wallet
             </Button>
           </nav>
+          {/* Mobile Hamburger */}
+          <button className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-cyan-400" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <Menu className="w-7 h-7 text-white" />
+          </button>
         </div>
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute left-0 right-0 mt-2 bg-[#10151f] border border-slate-500/20 rounded-lg shadow-lg z-50 animate-fade-in-down">
+            <nav className="flex flex-col items-start p-4 space-y-3">
+              <Link 
+                to="/" 
+                className={`w-full transition-colors ${location.pathname === '/' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Platforms
+              </Link>
+              <a href="#" className="w-full text-slate-300 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Notifications</a>
+              <Link 
+                to="/analytics" 
+                className={`w-full transition-colors ${location.pathname === '/analytics' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Analytics
+              </Link>
+              <a href="#" className="w-full text-slate-300 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Education</a>
+              <Button variant="outline" className="w-full glass border-slate-400/30 text-white hover:bg-slate-500/20 hover-neon-glow mt-2" onClick={() => setMobileMenuOpen(false)}>
+                Connect Wallet
+              </Button>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );

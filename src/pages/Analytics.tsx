@@ -182,10 +182,10 @@ const Analytics = () => {
           )}
           <div className="glass-card rounded-xl p-8 mb-8">
             <h1 className="text-3xl font-bold mb-6 text-white">Analytics</h1>
-            {/* Mini Charts Row - Horizontal */}
-            <div className="flex flex-row gap-6 w-full mb-12">
+            {/* Mini Charts Row - Responsive */}
+            <div className="flex flex-col md:flex-row gap-6 w-full mb-12">
               {/* BTC Card */}
-              <div className="flex-1 bg-slate-900/60 rounded-xl p-4 shadow-lg border border-cyan-500/20 flex flex-col justify-between">
+              <div className="flex-1 bg-slate-900/60 rounded-xl p-4 shadow-lg border border-cyan-500/20 flex flex-col justify-between mb-4 md:mb-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-slate-100 font-bold text-lg">BTC</span>
                   <span className="text-cyan-300 font-semibold text-base">${btcData.length ? btcData[btcData.length-1][1].toLocaleString(undefined, {maximumFractionDigits:2}) : '-'}</span>
@@ -201,7 +201,7 @@ const Analytics = () => {
                 </div>
               </div>
               {/* ETH Card */}
-              <div className="flex-1 bg-slate-900/60 rounded-xl p-4 shadow-lg border border-cyan-500/20 flex flex-col justify-between">
+              <div className="flex-1 bg-slate-900/60 rounded-xl p-4 shadow-lg border border-cyan-500/20 flex flex-col justify-between mb-4 md:mb-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-slate-100 font-bold text-lg">ETH</span>
                   <span className="text-purple-300 font-semibold text-base">${ethData.length ? ethData[ethData.length-1][1].toLocaleString(undefined, {maximumFractionDigits:2}) : '-'}</span>
@@ -233,9 +233,9 @@ const Analytics = () => {
                 </div>
               </div>
             </div>
-            {/* Trending and Top Gainers Row - Horizontal */}
-            <div className="flex flex-row gap-6 w-full mb-12">
-              <div className="flex-1 bg-slate-900/60 rounded-xl p-4 shadow-lg border border-cyan-500/20">
+            {/* Trending and Top Gainers Row - Responsive */}
+            <div className="flex flex-col md:flex-row gap-6 w-full mb-12">
+              <div className="flex-1 bg-slate-900/60 rounded-xl p-4 shadow-lg border border-cyan-500/20 mb-4 md:mb-0">
                 <h2 className="text-lg font-semibold text-cyan-300 mb-2">🔥 Trending</h2>
                 <ul className="space-y-2">
                   {trending.slice(0, 5).map((coin, idx) => (
