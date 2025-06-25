@@ -49,9 +49,9 @@ const AppHeader = () => {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 flex">
           {/* Overlay */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+          <div className="fixed inset-0 bg-black/90" onClick={() => setMobileMenuOpen(false)} />
           {/* Menu */}
-          <div className="relative w-3/4 max-w-xs bg-[#10151f] border border-slate-500/20 rounded-r-lg shadow-lg p-6 flex flex-col space-y-4 animate-fade-in-left z-50">
+          <div className="fixed left-0 top-0 h-full w-4/5 max-w-xs bg-[#10151f] border-r border-slate-500/20 shadow-lg p-6 flex flex-col space-y-4 z-50">
             <Link 
               to="/" 
               className={`w-full transition-colors ${location.pathname === '/' ? 'text-cyan-400' : 'text-slate-300 hover:text-white'} text-lg font-medium`}
