@@ -24,15 +24,34 @@ const PlatformGrid = ({
   const [bookmarkedPlatforms, setBookmarkedPlatforms] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const platformsPerPage = 30;
-  const categories = ["All", "CEX", "DEX", "DeFi", "Trading Bots", "Socials", "Gaming", "Casino", "Marketplace", "Tools"];
+  const categories = [
+    "All", "CEX", "DEX", "DeFi", "Trading Bots",
+    "Social", "Gaming", "Casino", "Marketplace", "Tools", "Wallets", "Bridging"
+  ];
 
   const filteredPlatforms = platforms.filter(platform => {
     const matchesSearch = platform.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         platform.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         platform.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesCategory = selectedCategory === "All" || platform.category === selectedCategory;
-    
+      platform.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      platform.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    let matchesCategory = selectedCategory === "All";
+
+    if (selectedCategory === "Trading Bots") {
+      matchesCategory = platform.category === "Trading Bot/Platforms" || platform.category === "TG Trading Bot";
+    } else if (selectedCategory === "DeFi") {
+      matchesCategory = platform.category === "DeFi" || platform.category === "Staking";
+    } else if (selectedCategory === "Social") {
+      matchesCategory = platform.category === "Social";
+    } else if (selectedCategory === "Tools") {
+      matchesCategory = ["tools", "tool"].includes(platform.category.trim().toLowerCase());
+    } else if (selectedCategory === "Wallets") {
+      matchesCategory = ["wallets", "wallet"].includes(platform.category.trim().toLowerCase());
+    } else if (selectedCategory === "Casino") {
+      matchesCategory = ["casino", "caino"].includes(platform.category.trim().toLowerCase());
+    } else if (selectedCategory !== "All") {
+      matchesCategory = platform.category === selectedCategory;
+    }
+
     return matchesSearch && matchesCategory;
   });
 
