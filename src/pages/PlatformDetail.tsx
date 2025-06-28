@@ -17,6 +17,181 @@ const PlatformDetail = () => {
   const [relatedPlatforms, setRelatedPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Helper function to normalize platform names for favicon matching
+  const getFaviconPath = (platformName: string) => {
+    // Normalize the platform name to match favicon naming convention
+    let normalizedName = platformName
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '_') // Replace non-alphanumeric chars with underscore
+      .replace(/_+/g, '_') // Replace multiple underscores with single
+      .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
+    
+    // Handle specific known cases
+    const nameMappings: { [key: string]: string } = {
+      'crypto_com': 'Crypto_com',
+      'gate_io': 'Gate_io',
+      'magic_eden': 'magic_eden',
+      'opensea_pro': 'Opensea_pro',
+      'sniper_xyz': 'Sniper_xyz',
+      'god_unchained': 'God_unchained',
+      'sol_incinerator': 'Sol_incinerator',
+      'sol_trading': 'SOL_trading',
+      'sns_bonfida': 'SNS_bonfida',
+      'banana_gun_bot': 'banana_gun_bot',
+      'magnum_trading_bot': 'magnum_trading_bot',
+      'unibot_v2': 'Unibot_v2',
+      'pepeboost': 'PepeBoost',
+      'bc_game': 'bc_game',
+      'cloudbet': 'cloudbet',
+      'toshibet': 'toshibet',
+      'shuffle': 'shuffle',
+      'gamdom': 'gamdom',
+      'rollbit': 'rollbit',
+      'roobet': 'roobet',
+      'solcasino': 'solcasino',
+      'megadice': 'megadice',
+      '7bit': '7bit',
+      '500_casino': '500_casino',
+      'coinbase_wallet': 'Coinbase_Wallet',
+      'binance_wallet': 'Binance_Wallet',
+      'bitgetwallet': 'bitgetwallet',
+      'okx_wallet': 'okx_wallet',
+      'ethereum_wallet': 'ethereum_wallet',
+      'bravewallet': 'bravewallet',
+      'jupmobile': 'jupmobile',
+      'solflare': 'solflare',
+      'magic_eden': 'magic_eden',
+      'metamask': 'metamask',
+      'trust': 'trust',
+      'trezor': 'trezor',
+      'ledger': 'ledger',
+      'backpack': 'backpack',
+      'xverse': 'xverse',
+      'glow': 'glow',
+      'exodus': 'exodus',
+      'unisat': 'Unisat',
+      'rainbow': 'rainbow',
+      'seiglobal': 'seiglobal',
+      'abstract': 'abstract',
+      'ambient_finance': 'ambient_finance',
+      'izumi_finance': 'izumi_finance',
+      'butter': 'butter',
+      'supswap': 'supswap',
+      'demmex': 'demmex',
+      'logx': 'Logx',
+      'satori_finance': 'satori_finance',
+      'lyra': 'lyra',
+      'zeta': 'zeta',
+      'aevo': 'aevo',
+      'intentx': 'intentx',
+      'dexscreener': 'Dexscreener',
+      'pumpfun': 'Pumpfun',
+      'odinfun': 'Odinfun',
+      'blazestake': 'blazestake',
+      'kamino': 'Kamino',
+      'orca': 'Orca',
+      'meteora': 'Meteora',
+      'marginfi': 'Marginfi',
+      'eigenlayer': 'Eigenlayer',
+      'helio': 'Helio',
+      'debank': 'Debank',
+      'matcha': 'Matcha',
+      'matchain': 'Matchain',
+      'cetus': 'Cetus',
+      'suilend': 'Suilend',
+      'carv': 'carv',
+      'aeitheir': 'aeitheir',
+      'parcl': 'parcl',
+      'assetdash': 'assetdash',
+      'sharkyfi': 'sharkyfi',
+      'opensea': 'Opensea',
+      'blur': 'Blur',
+      'magiceden': 'Magiceden',
+      'tensor': 'Tensor',
+      'whalesmarket': 'Whalesmarket',
+      'rairable': 'Rairable',
+      'launchmynft': 'Launchmynft',
+      'tokentrove': 'TokenTrove',
+      'polymarket': 'Polymarket',
+      'zetamarkets': 'zetamarkets',
+      'element': 'element',
+      'scatterart': 'scatterart',
+      'zkmarkets': 'zkmarkets',
+      'photon': 'Photon',
+      'bullx': 'Bullx',
+      'bullx_neo': 'Bullx_Neo',
+      'axiom': 'Axiom',
+      'gmgn': 'GMGN',
+      'unibot': 'Unibot',
+      'trojan': 'Trojan',
+      'maestro': 'Maestro',
+      'bonkbot': 'Bonkbot',
+      'fluxbot': 'fluxbot',
+      'cielo': 'cielo',
+      'pumppill': 'pumppill',
+      'kekbot': 'KekBot',
+      'pepeboost': 'PepeBoost',
+      'jito': 'Jito',
+      'pyth': 'Pyth',
+      'owlito': 'Owlito',
+      'debridge': 'Debridge',
+      'wormhole': 'Wormhole',
+      'portal': 'Portal',
+      'jumper': 'Jumper',
+      'all_bridge': 'All_bridge',
+      'mayanswap': 'Mayanswap',
+      'atomiq': 'Atomiq',
+      'orbiter': 'orbiter',
+      'bungee': 'bungee',
+      'rango': 'rango',
+      'stargate': 'stargate',
+      'warpcast': 'Warpcast',
+      'zora': 'Zora',
+      'zealy': 'Zealy',
+      'matrica': 'Matrica',
+      'highrise': 'Highrise',
+      'defillama': 'defillama',
+      'rugcheck': 'rugcheck',
+      'fluxbeam': 'fluxbeam',
+      'smithii': 'Smithii',
+      'dextools': 'Dextools',
+      // Add missing platforms that don't have favicon files
+      'jupiter': 'Jupiter',
+      'hyperliquid': 'Hyperliquid',
+      'drift': 'Drift',
+      'raydium': 'Raydium',
+      'uniswap': 'Uniswap',
+      'pancakeswap': 'Pancakeswap',
+      'birdeye': 'Birdeye',
+      'sushi': 'Sushi',
+      'pond0x': 'pond0x',
+      'syncswap': 'syncswap',
+      'butter': 'butter',
+      'supswap': 'supswap',
+      'demmex': 'demmex',
+      'logx': 'Logx',
+      'satori_finance': 'satori_finance',
+      'derive': 'lyra', // Derive uses lyra favicon
+      'zeta': 'zeta',
+      'aevo': 'aevo',
+      'intentx': 'intentx',
+      'coinbase': 'Coinbase',
+      'bitget': 'Bitget',
+      'kucoin': 'Kucoin',
+      'kraken': 'Kraken',
+      'bybit': 'Bybit',
+      'okx': 'OKX',
+      'mexc': 'MEXC',
+      'htx': 'HTX',
+      'gemini': 'Gemini',
+      'bitfinex': 'Bitfinex',
+      'bitstamp': 'Bitstamp',
+      'upbit': 'Upbit'
+    };
+
+    return `/favicons/fav_${nameMappings[normalizedName] || normalizedName}.png`;
+  };
+
   useEffect(() => {
     const fetchPlatform = async () => {
       try {
@@ -231,16 +406,6 @@ const PlatformDetail = () => {
                         {platform.airdropPotential}
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-300">Status</span>
-                      <Badge className={`${
-                        platform.Status?.includes('Active') 
-                          ? 'bg-green-500/20 text-green-300 border-green-500/30'
-                          : 'bg-red-500/20 text-red-300 border-red-500/30'
-                      }`}>
-                        {platform.Status || 'Unknown'}
-                      </Badge>
-                    </div>
                     {platform.lastUpdated && (
                       <div className="flex items-center justify-between">
                         <span className="text-slate-300">Last Updated</span>
@@ -262,7 +427,7 @@ const PlatformDetail = () => {
                 <CardContent>
                   <div className="space-y-3">
                     {relatedPlatforms.map((related) => {
-                      const faviconPath = `/favicons/fav_${related['Platform Name']}.png`;
+                      const faviconPath = getFaviconPath(related['Platform Name']);
                       return (
                         <div
                           key={related.id}
